@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Secret Puzzle 💕</title>
+<style>
+  body { background:#0f172a; color:white; font-family:Arial, sans-serif; text-align:center; margin:0; }
+  h1 { margin-top:60px; color:#f472b6; }
+  #puzzle { display:flex; flex-wrap:wrap; justify-content:center; margin-top:40px; max-width:600px; margin-left:auto; margin-right:auto; }
+  .box {
+    width:60px; height:60px; margin:8px;
+    background:#1e293b; border:2px solid #f472b6; border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:28px; font-weight:bold;
+    color:transparent; cursor:pointer;
+    transition:all 0.3s ease;
+    position:relative;
+  }
+  .box::after { content:"?"; position:absolute; color:#f9fafb; font-size:26px; }
+  .box.revealed { color:#f9fafb; }
+  .box.revealed::after { content:""; }
+  .box.used { background:#f472b6; color:white; pointer-events:none; }
+  #answer { margin-top:50px; font-size:35px; letter-spacing:8px; color:#fbbf24; min-height:50px; }
+  #final { display:none; margin-top:50px; font-size:40px; color:#22c55e; }
+</style>
+</head>
+<body>
+
+<h1>🧩 From your IT Boy</h1>
+<p>Some boxes are teasing you… find the letters to reveal my secret 💖</p>
+
+<div id="puzzle"></div>
+<div id="answer"></div>
+
+<script>
+  const secret="I Like You!";
+  const letters=secret.split("");
+  
+  // Add fake letters (teasing emojis)
+  const fakeCount=10;
+  const teasingEmojis=["😜","🙃","😅","😏","😉","😂","🤭"];
+  const fakeBoxes=[];
+  for(let i=0;i<fakeCount;i++){
+    fakeBoxes.push(teasingEmojis[Math.floor(Math.random()*teasingEmojis.length)]);
+  }
+
+  const puzzleLetters=[...letters,...fakeBoxes];
+  
+  // Shuffle
+  function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+    return arr;
+  }
+  
+  const jumbled=shuffle(puzzleLetters);
+  const puzzle=document.getElementById("puzzle");
+  const answer=document.getElementById("answer");
+  const final=document.getElementById("final");
+  
+  // setup blank answer slots
+  let slots=[];
+  letters.forEach((l,i)=>{
+    const span=document.createElement("span");
+    span.textContent="_";
+    slots.push(span);
+    answer.appendChild(span);
+  });
+  
+  jumbled.forEach(l=>{
+    const box=document.createElement("div");
+    box.className="box";
+    box.textContent=l;
+    puzzle.appendChild(box);
+    
+    box.addEventListener("click",()=>{
+      if(box.classList.contains("used")) return;
+      box.classList.add("revealed","used");
+
+      // If it’s a real letter, place it in the correct slot
+      if(letters.includes(l)){
+        letters.forEach((realLetter,idx)=>{
+          if(realLetter===l && slots[idx].textContent==="_"){
+            slots[idx].textContent=l;
+          }
+        });
+      } else {
+        // teasing box: show emoji
+        box.style.color="#fbbf24";
+        box.textContent=l;
+      }
+
+      // Check if completed
+      if(slots.map(s=>s.textContent).join("")===secret){
+        final.style.display="block";
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
